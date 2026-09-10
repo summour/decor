@@ -1,5 +1,6 @@
+import type { PointerEvent } from 'react'
 import type { FurnitureDefinition, PlacedFurniture } from './types'
-import { CELL_H, CELL_W, getFurnitureDepth, getRotatedSize, isoToScreen, screenToIso, snapToGrid } from './iso'
+import { CELL_H, CELL_W, getFurnitureDepth, getRotatedSize, screenToIso, snapToGrid } from './iso'
 import { ROOM_HEIGHT, ROOM_WIDTH } from './data'
 import { Furniture } from './Furniture'
 
@@ -21,7 +22,21 @@ export function Room({ furniture, definitions, selectedId, onSelect, onMove }: P
     `${ORIGIN.x - ROOM_HEIGHT * CELL_W / 2},${ORIGIN.y + ROOM_HEIGHT * CELL_H / 2}`,
   ].join(' ')
 
-  const handlePointerDown = (event: React.PointerEvent, item: PlacedFurniture) => {
+  const leftWallPoints = [
+    `${ORIGIN.x},${ORIGIN.y}`,
+    `${ORIGIN.x - ROOM_HEIGHT * CELL_W / 2},${ORIGIN.y + ROOM_HEIGHT * CELL_H / 2}`,
+    `${ORIGIN.x - ROOM_HEIGHT * CELL_W / 2},310`,
+    `208,350`,
+  ].join(' ')
+
+  const rightWallPoints = [
+    `${ORIGIN.x},${ORIGIN.y}`,
+    `${ORIGIN.x + ROOM_WIDTH * CELL_W / 2},${ORIGIN.y + ROOM_WIDTH * CELL_H / 2}`,
+    `${ORIGIN.x + ROOM_WIDTH * CELL_W / 2},310`,
+    `208,350`,
+  ].join(' ')
+
+  const handlePointerDown = (event: PointerEvent, item: PlacedFurniture) => {
     event.stopPropagation()
     const target = event.currentTarget as HTMLElement
     target.setPointerCapture(event.pointerId)
@@ -30,19 +45,19 @@ export function Room({ furniture, definitions, selectedId, onSelect, onMove }: P
     const start = { x: event.clientX, y: event.clientY }
     const startPosition = { ...item.position }
 
-    const move = (moveEvent: PointerEvent) => {
+    const move = (moveEvent: globalThis.PointerEvent) => {
       const dx = moveEvent.clientX - start.x
       const dy = moveEvent.clientY - start.y
       const isoDelta = screenToIso({ x: dx, y: dy }, { x: 0, y: 0 })
       onMove(item.instanceId, startPosition.x + isoDelta.x, startPosition.y + isoDelta.y)
     }
     const up = () => {
-      target.releasePointerCapture(event.pointerId)
+      if (target.hasPointerCapture(event.pointerId)) target.releasePointerCapture(event.pointerId)
       window.removeEventListener('pointermove', move)
       window.removeEventListener('pointerup', up)
     }
     window.addEventListener('pointermove', move)
-    window.addEventListener('pointerup', up)
+    window.addEventListener('pointerup', up, { once: true })
   }
 
   return (
@@ -54,8 +69,8 @@ export function Room({ furniture, definitions, selectedId, onSelect, onMove }: P
           <linearGradient id="wallRight" x1="0" x2="1"><stop offset="0" stopColor="#f7d9df"/><stop offset="1" stopColor="#f1c2ce"/></linearGradient>
           <pattern id="floorPattern" width="26" height="26" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><path d="M0 13h26" stroke="#dfc7b7" strokeWidth="1" opacity=".45"/></pattern>
         </defs>
-        <polygon points="${ORIGIN.x},${ORIGIN.y} ${ORIGIN.x - ROOM_HEIGHT * CELL_W / 2},${ORIGIN.y + ROOM_HEIGHT * CELL_H / 2} ${ORIGIN.x - ROOM_HEIGHT * CELL_W / 2},310 208,350" fill="url(#wallLeft)" stroke="#a77b7d" strokeWidth="2"/>
-        <polygon points="${ORIGIN.x},${ORIGIN.y} ${ORIGIN.x + ROOM_WIDTH * CELL_W / 2},${ORIGIN.y + ROOM_WIDTH * CELL_H / 2} ${ORIGIN.x + ROOM_WIDTH * CELL_W / 2},310 208,350" fill="url(#wallRight)" stroke="#a77b7d" strokeWidth="2"/>
+        <polygon points={leftWallPoints} fill="url(#wallLeft)" stroke="#a77b7d" strokeWidth="2"/>
+        <polygon points={rightWallPoints} fill="url(#wallRight)" stroke="#a77b7d" strokeWidth="2"/>
         <polygon points={floorPoints} fill="url(#floor)" stroke="#a77b7d" strokeWidth="2"/>
         <polygon points={floorPoints} fill="url(#floorPattern)" opacity=".8"/>
         <g className="wall-decor">
@@ -77,7 +92,6 @@ export function Room({ furniture, definitions, selectedId, onSelect, onMove }: P
           .map((item) => {
             const definition = definitions.get(item.furnitureId)
             if (!definition) return null
-            const size = getRotatedSize(definition.width, definition.height, item.rotation)
             const position = snapToGrid(item.position)
             return <Furniture key={item.instanceId} item={{ ...item, position }} definition={definition} origin={ORIGIN} selected={selectedId === item.instanceId} onPointerDown={handlePointerDown} />
           })}
