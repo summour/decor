@@ -26,3 +26,5 @@ After pushing to `main`, enable GitHub Pages in the repository settings and sele
 ## Data
 
 Room state is stored locally in the browser under `decor-room-v1`. No backend or account is required.
+
+Prototype status: default room and furniture placement system are implemented; gacha and additional rooms are intentionally deferred.
