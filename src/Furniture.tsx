@@ -1,4 +1,5 @@
 import { useMemo, useRef } from 'react'
+import type { PointerEvent } from 'react'
 import type { FurnitureDefinition, PlacedFurniture } from './types'
 import { CELL_H, CELL_W, getRotatedSize, isoToScreen } from './iso'
 import { FurnitureArt } from './furniture-art'
@@ -8,7 +9,7 @@ interface Props {
   definition: FurnitureDefinition
   origin: { x: number; y: number }
   selected: boolean
-  onPointerDown: (event: React.PointerEvent, item: PlacedFurniture) => void
+  onPointerDown: (event: PointerEvent, item: PlacedFurniture) => void
 }
 
 export function Furniture({ item, definition, origin, selected, onPointerDown }: Props) {
