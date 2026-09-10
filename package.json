@@ -1,7 +1,7 @@
 {
   "name": "decor",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,17 +9,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@react-three/fiber": "latest",
+    "@react-three/fiber": "9.7.0",
     "@vitejs/plugin-react": "latest",
-    "react": "latest",
-    "react-dom": "latest",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
     "three": "latest",
     "typescript": "latest",
     "vite": "latest"
   },
   "devDependencies": {
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
+    "@types/react": "19.2.0",
+    "@types/react-dom": "19.2.0",
     "@types/three": "latest"
   }
 }
